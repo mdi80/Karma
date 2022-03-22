@@ -1,0 +1,24 @@
+{% extends "karma/layout.html" %}
+
+{% block body %}
+
+    <form action="{% url 'main:calcstand' %}" id="form-calc" method="post">
+        {% csrf_token %}
+
+        <ul class="list-group">
+
+            {% for id,stand in stands %}
+
+                <li  class="list-group-item">
+                        {{stand}} <input type="number"  name="{{id}}" style="width:30px;float:left;">
+                </li>
+
+            {% endfor %}
+
+        </ul>
+
+    </form>
+    <div class="container-fluid">
+        <button type="submit" form="form-calc" class="btn btn-primary btn-lg" style="display: block;width: 100%;">محاسبه کن</button>
+    </div>
+{% endblock %}

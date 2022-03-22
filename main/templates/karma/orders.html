@@ -1,0 +1,181 @@
+{% extends "karma/layout.html" %}
+{% block body %}
+
+<style>
+    .modal-body p{
+        display: inline-block;
+    }
+</style>
+
+<div>
+    <div class="list-group">
+        {% for order in orders %}
+        <button type="button" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#modal" 
+        data-bs-price="{{order.price}}" 
+        data-bs-id="{{order.id}}" 
+        data-bs-title="{{order.name}}" 
+        data-bs-fee="{{order.fee}}" 
+        data-bs-date="{{order.date}}" 
+        data-bs-finishdate="{{order.finishdate}}" 
+        data-bs-done="{{order.done}}" 
+        data-bs-paid="{{order.paid}}" 
+        data-bs-des="{{order.des}}" 
+        data-bs-by="{{order.by}}" 
+        data-bs-nday="{{order.nday}}" 
+        data-bs-pers="{{order.pers}}" 
+        aria-current="true">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">نام سفارش : {{ order.name }}</h5>
+                <small>{{ order.date }}</small>
+            </div>
+            <p class="mb-1">قیمت سفارش : {{ order.price }}</p>
+            <p class="mb-1">دستمزد : {{ order.fee }}</p>
+            
+            <small>توسط : 
+                {% if order.done %}
+                    {% if order.by != '' %}
+                    <span style="color: blue;">{{order.by}}</span>
+                    {% else %}
+                        <span style="color: red;">وارد نشده</span>
+                    {% endif %}
+                {% else %}
+                <span style="color: green;">انجام نشده</span>
+                {% endif %}
+            </small>
+        </button>
+        {% empty %}
+        <div class="list-group-item" >سفارشی ثبت نشده</div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="modalLabel">نمایش سفارش</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1"></h5>
+            </div>
+            قیمت سفارش : <p class="mb-1" id="price"></p><br>
+            دستمزد کل : <p class="mb-1" id="fee"></p><br>
+            تاریخ ثبت سفارش : <p class="mb-1" id="date"></p><br>
+            وضیعت : <p class="mb-1" id="done"></p> <br>
+            <div id="div-done" style="display: inline-block;">
+                <p class="mb-1" id="paid"></p><br>
+                تاریخ اتمام سفارش : <p class="mb-1" id="finishdate"></p><br>
+                تعداد روز های انجام سفارش :<p class="mb-1" id="nday"></p><br>
+                توسط چه کسانی انجام شده : <p class="mb-1" id="by"></p> <br>         
+            </div>
+            
+            توضیحات :  <br> <p class="mb-1" id="des"></p>  
+        </div>
+        <div class="modal-footer" style="width: 100%;" >
+            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">تموم</button>
+            <!--<form method="post" >
+                {% csrf_token %}
+                <input type="checkbox" name="val" id="check-val" style="display: none">
+                <input type="text" name="id" id="input-id" hidden>
+                <label class="form-check-label" for="check-val" id="check-val-lb" >
+                    در این سفارش حضور داشتم
+                </label>
+            
+                
+             </form>-->
+        </div>
+    </div>
+    </div>
+</div>
+
+
+<script>
+    var modal = document.getElementById('modal')
+    modal.addEventListener('show.bs.modal', function (event) {
+        
+    
+    var button = event.relatedTarget
+    var id = button.getAttribute('data-bs-id')
+    var dtitle = button.getAttribute('data-bs-title')
+    var ddate = button.getAttribute('data-bs-date')
+    var dfinishdate = button.getAttribute('data-bs-finishdate')
+    var dprice = button.getAttribute('data-bs-price')
+    var dfee = button.getAttribute('data-bs-fee')
+    var ddone = button.getAttribute('data-bs-done')
+    var dpaid = button.getAttribute('data-bs-paid')
+    var ddes = button.getAttribute('data-bs-des')
+    var dby = button.getAttribute('data-bs-by')
+    var dnday = button.getAttribute('data-bs-nday')
+    var dpers = button.getAttribute('data-bs-pers')
+
+    //var check = modal.querySelector('div #check-val')
+    //var checklb = modal.querySelector('div #check-val-lb')
+    //var inputId = modal.querySelector('div #input-id')
+
+    //check.style.display = 'none'
+    //checklb.style.display = 'none'
+
+    var title = modal.querySelector('.modal-body h5')
+    var date = modal.querySelector('.modal-body #date')
+    var finishdate = modal.querySelector('.modal-body #finishdate')
+    var price = modal.querySelector('.modal-body #price')
+    var fee = modal.querySelector('.modal-body #fee')
+    var done = modal.querySelector('.modal-body #done')
+    var paid = modal.querySelector('.modal-body #paid')
+    var des = modal.querySelector('.modal-body #des')
+    var by = modal.querySelector('.modal-body #by')
+    var nday = modal.querySelector('.modal-body #nday')
+
+    /*inputId.setAttribute('value',id)
+    if(dpers === "true"){
+        check.checked = true
+    }else{
+        check.checked = false
+    }*/
+    
+    
+
+    title.textContent = dtitle
+    date.textContent = ddate
+    if(ddone === "True"){
+        
+        div = modal.querySelector(".modal-body #div-done")
+        div.style.display = 'block'
+        by.textContent = dby
+        finishdate.textContent = dfinishdate
+        nday.textContent = dnday
+        if (dpaid === "True"){
+            paid.textContent = "تصفیه شده"
+        }else{
+            /*check.style.display = 'inline-block'
+            checklb.style.display = 'inline-block'*/
+            paid.textContent = "تصفیه نشده"
+        }
+    }else{
+        div = modal.querySelector(".modal-body #div-done")
+        div.style.display = 'none'
+    }
+    price.textContent = dprice
+    fee.textContent = dfee
+
+    if(ddes === "None"){
+        ddes = ""
+    }
+    des.textContent = ddes
+    if (vdone){
+        done.textContent = "انجام شده"
+    }else{
+        done.textContent = "انجام نشده"
+    }
+
+    
+})
+</script>
+
+{% endblock %}

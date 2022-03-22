@@ -1,0 +1,313 @@
+{% extends "karma/layout.html" %}
+{% load static %}
+{% block body %}
+
+
+
+
+    <a style="display: block;margin: 10px;" href="{% url 'main:addorder' %}"
+        type="button" class="btn btn-outline-primary btn-lg">اضافه کردن سفارش</a>
+    <h3 style="margin: 10px;">سفارشات جدید</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                
+                <th scope="col"  style="font-size: 9pt;" >عنوان</th>
+                <th scope="col"  style="font-size: 9pt;" >قیمت سفارش</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in neworders %}
+            <tr>
+                <td scope="row">{{order.name}}</td>
+                <td>{{order.price}}</td>
+                <td style="text-align: left;">
+                    <button class="btn btn-sm btn-outline-success"
+                        data-bs-toggle="modal" data-bs-target="#modal" 
+                        data-bs-pworker="{{order.perworker}}" 
+                        data-bs-id="{{order.id}}" 
+                        data-bs-title="{{order.name}}"
+                        data-bs-workers="{{order.userworkers}}"
+                        data-bs-allworkers="{{allusers}}"
+                        data-bs-done="done"
+                        data-bs-editabledate="1"
+                        aria-current="true">
+                        انجام
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3 style="margin: 10px;">سفارشات انجام شده</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                
+                <th scope="col"  style="font-size: 9pt;" >عنوان</th>
+                <th scope="col"  style="font-size: 9pt;" >قیمت سفارش</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in doneorders %}
+            <tr>
+                <td scope="row">{{order.name}}</td>
+                <td>{{order.price}}</td>
+                <td style="text-align: left;">
+                    <button class="btn btn-sm btn-outline-info"
+                        data-bs-toggle="modal" data-bs-target="#modal" 
+                        data-bs-pworker="{{order.perworker}}" 
+                        data-bs-id="{{order.id}}" 
+                        data-bs-title="{{order.name}}"
+                        data-bs-workers="{{order.userworkers}}"
+                        data-bs-allworkers="{{allusers}}"
+                        data-bs-editabledate="0"
+                        data-bs-date="{{order.finishdate}}"
+                        data-bs-nod="{{order.daynumber}}"
+                        aria-current="true">
+                        ویرایش
+                    </button>
+
+                    <button class="btn btn-sm btn-outline-success" 
+                        onclick="btnpay('{{order.id}}','{{order.name}}','{{order.perworker}}')">
+                        پرداخت
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+ 
+    <h3 style="margin: 10px;">مالی</h3>
+    
+    <div>سود هر سفارش : {{ gain }} 
+        <button style="margin: 10;float: left;" onclick="btnchnagegain('{{ gain }}')"
+        type="button" class="btn btn-outline-primary btn-sm">تغییر</button>
+    </div>
+    <div>درصد دستمزد سفارش : {{ perworker }} 
+        <button style="margin: 10;float: left;" onclick="btnchnageperworker('{{ perworker }}')"
+        type="button" class="btn btn-outline-primary btn-sm">تغییر</button>
+    </div>
+    <br>    
+    <ul class="list-group">
+        <li style="display: block;" class="list-group-item">ماه جاری<span style="float: left;">{{ mali.cur }}</span></li>
+    
+        {% for date,sal in mali.his %}
+            <li style="display: block;" class="list-group-item">
+                {{ date }} <span style="float: left;">{{ sal }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h3 style="margin: 10px;">تاریخچه سفارشات</h3>
+
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col"  style="font-size: 9pt;" >عنوان</th>
+                <th scope="col"  style="font-size: 9pt;" >قیمت سفارش</th>
+                <th scope="col" style="font-size: 9pt;" >دستمزد کل</th>
+                <th scope="col" style="font-size: 9pt;" >برداشتی از دستمزد</th>
+                <th scope="col" style="font-size: 9pt;" >تاریخ انجام</th>
+                <th scope="col" style="font-size: 9pt;" >تعداد روز انجام سفارش</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in hisorders %}
+            <tr>
+                <td scope="row">{{order.name}}</td>
+                <td style="font-size: 8pt;">{{order.price}}</td>
+                <td style="font-size: 8pt;">{{order.fee}}</td>
+                <td style="font-size: 8pt;">{{order.tokenfee}}</td>
+                <td style="font-size: 8pt;">{{order.finishdate}}</td>
+                <td>{{order.daynumber}}</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+        
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel">ویرایش درصد حضور</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5></h5>
+                <form id="form-modal" name="form" method="post" onsubmit="return validate()">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <label for="datepicker0" class="col-sm-4 col-form-label">تاریخ انجام سفارش</label>
+                        <div class="col-sm-8">
+                          <input type="text" name="date" class="form-control" id="datepicker0" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="nof" class="col-sm-4 col-form-label">تعداد روز های انجام سفارش</label>
+                        <div class="col-sm-8">
+                          <input name="nday" type="number" class="form-control" id="nof" required>
+                        </div>
+                    </div>
+                    <input name="idorder" hidden id="inputid"/>
+                    <input name="done" hidden id="inputdone"/>
+
+                    <div class="row mb-3 user">
+
+                    </div>
+                </form>
+                
+
+                
+            </div>
+            <div class="modal-footer" style="width: 100%;" >
+                <button type="submit" form="form-modal" class="btn btn-primary">تموم</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="{% static 'karma/calender/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'karma/calender/bootstrap-datepicker.fa.min.js' %}"></script>
+
+    <script>
+        ////////////////////////////////////
+        $(document).ready(function() {
+                $("#datepicker0").datepicker({
+                    changeMonth: true,
+                    changeYear: true,
+                    dateFormat: 'yy/mm/dd'
+                });
+        })
+        function btnchnagegain(prv){
+            let value = prompt("درصد جدید را وارد کنید:",prv)
+            var regper = /^([1-9][0-9]|[1-9])$/
+            while(!regper.test(value)) value = prompt("درصد اشتباه وارد شده است.\nدرصد جدید را وارد کنید:",prv)
+            window.location.replace(`{% url 'main:profile'%}?changegain=${value}`)
+        }
+        function btnchnageperworker(prv){
+            let value = prompt("درصد جدید را وارد کنید:",prv)
+            var regper = /^([1-9][0-9]|[1-9])$/
+            while(!regper.test(value)) value = prompt("درصد اشتباه وارد شده است.\nدرصد جدید را وارد کنید:",prv)
+            window.location.replace(`{% url 'main:profile'%}?changeperworker=${value}`)
+        }
+        function validate(){
+            var regdate1 = /^(140[0-9]|141[0-9])\/(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])$/
+            var regdate2 = /^(140[0-9]|141[0-9])-(0[1-9]|1[0-2])-(0[1-9]|1\d|2\d|3[01])$/
+            var regnumber = /^[1-9]|[1-9][0-9]$/
+
+            indate = document.form.date
+            innday = document.form.nday
+            if ( !((regdate1.test(indate.value) || regdate2.test(indate.value) ) && regnumber.test(innday.value)) ){
+                alert("تاریخ یا تعداد روز ها درست وارد نشدند!")
+                return false
+            }
+                
+            return true
+        }
+
+        function btnpay(id,title,pw){
+            res = confirm(` آیا میخواهید سفارش '${title}' را در وضیعت پرداخت شده قرار دهید؟ `)
+            try{
+                var opw = JSON.parse(pw)
+            }catch{
+                opw = []
+            }
+            
+            let sum = 0
+            for (const us in opw){
+                sum += parseInt(opw[us])
+            }
+            console.log(sum);
+
+            if (sum !== 100){
+                alert(`مجموع درصد های ورودی برای کاربر ها برابر با 100 نیست. \nلطفا در قسمت ویرایش سفارش آن را تصحیح نمایید.`)
+            }
+
+            if (res === true && sum === 100){
+
+                window.location.replace(`{% url 'main:profile'%}?pay=${id}`)
+            }
+        }
+///////////////////////////////////
+        
+
+        var modal = document.getElementById('modal')
+        modal.addEventListener('show.bs.modal', function (event) {
+            
+        
+        var button = event.relatedTarget
+        var dtitle = button.getAttribute('data-bs-title')
+        var did = button.getAttribute('data-bs-id')
+        var dworkers = button.getAttribute('data-bs-workers')
+        var dper = button.getAttribute('data-bs-pworker')
+        var aworkers = button.getAttribute('data-bs-allworkers')
+        var done = (button.getAttribute('data-bs-done') === "done")
+        var edit = (button.getAttribute('data-bs-editabledate') === '1')
+        modal.querySelector(".modal-body #inputdone").value = done
+
+        aworkers = aworkers.replaceAll("'",'"')
+        modal.querySelector('.modal-body h5').innerHTML = dtitle
+        modal.querySelector('.modal-body h5')
+
+        modal.querySelector(".modal-body #inputid").value = did
+        modal.querySelector('.modal-body #nof').readOnly = false;
+        modal.querySelector('.modal-body #datepicker0').readOnly = false;
+        $('#datepicker0').css('pointer-events', '');
+
+        modal.querySelector('.modal-body #nof').value = ""
+        modal.querySelector('.modal-body #datepicker0').value = ""
+
+        if(!edit){
+            modal.querySelector('.modal-body #nof').readOnly = true;
+            modal.querySelector('.modal-body #nof').value = button.getAttribute('data-bs-nod');
+            modal.querySelector('.modal-body #datepicker0').readOnly = true;
+            modal.querySelector('.modal-body #datepicker0').value = button.getAttribute('data-bs-date');
+            $('#datepicker0').css('pointer-events', 'none');
+        }else{
+            modal.querySelector(".modal-body #nof")
+        }
+        
+        var aw = JSON.parse(aworkers)
+
+        var percentw = null
+        
+        if(dper !== ""){
+            percentw = JSON.parse(dper);
+        }  
+      /*  var workers = []
+        try{
+            workers = JSON.parse(dworkers)
+        }catch{
+            workers = []
+        }
+        */
+        var div = document.querySelector('.modal-body .user')
+        div.innerHTML = ''
+        for (let i = 0;i < aw.length;i++){
+            var value = '0'
+            if (percentw !== null){            
+                console.log(value);
+
+                value = percentw[aw[i]]
+            }
+            div.innerHTML += `<label class="col-sm-4 col-form-label" for="id${i}">درصد ${aw[i]}</label><div class="col-sm-8"><input id="id${i}" class="form-control" type="number" name="${aw[i]}" value="${value}"></div>`
+        }
+          
+        
+        })
+    </script>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "karma/layout.html" %}
+{% block body %}
+<div style="padding: 10px;">
+    <h2>ورود کاربر</h2>
+    {% if wrong %}
+        <span style="color: red;">نام کاربری یا رمز عبور اشتباه است!</span>
+    {% endif %}
+    <form class="was-validated" action="{% url 'main:login' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3 mt-3">
+            <label for="uname" class="form-label">نام کاربری:</label>
+            <input type="text" class="form-control" id="uname" placeholder="نام کاربری خود را وارد کنید" name="uname" required>
+            <div class="invalid-feedback">این فیلد نباید خالی باشد</div>
+        </div>
+        <div class="mb-3">
+            <label for="pwd" class="form-label">رمز عبور:</label>
+            <input type="password" class="form-control" id="pwd" placeholder="پسورد را وارد کنید" name="pswd" required>
+            <div class="invalid-feedback">این فیلد نباید خالی باشد</div>
+        </div>
+        <button type="submit" style="float : left" class="btn btn-primary">تموم</button>
+    </form>
+</div>
+{% endblock %}

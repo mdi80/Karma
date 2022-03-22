@@ -1,0 +1,116 @@
+{% extends "karma/layout.html" %}
+{% block body %}
+
+<script>
+
+    class item{
+        
+        constructor(input1,input2,number){
+            this.input1 = input1;
+            this.input2 = input2;
+            this.number = number;
+        }
+        
+    }
+
+    var data = []
+    
+    function btnadd(){
+        
+        let i1 =  document.getElementById("i1").value
+        let i2 =  document.getElementById("i2").value
+        let n = document.getElementById("nbr").value
+
+        if (i1 === "" || i2 === "" || n === ""){
+            alert("همه فیلد ها باید پر باشد.")
+            cleanInputs()
+            return null
+        }
+        if (containsArray(i1,i2)){
+            alert("این قاب قبلا اضافه شده است.\nآیا میخواهید آن را بازنویسی کنید؟")
+            cleanInputs()
+            return null
+        }
+        data.push(new item(i1,i2,n))
+        refreshList()
+        cleanInputs()
+    }
+
+    function cleanInputs(){
+        document.getElementById("i1").value = ""
+        document.getElementById("i2").value = ""
+        document.getElementById("nbr").value = ""
+    }
+
+    function containsArray(i1,i2){
+
+        for(let i = 0 ; i< data.length; i++){
+            if(data[i].input1 === i1 && data[i].input2 === i2){
+                return true
+            }
+            if(data[i].input1 === i2 && data[i].input2 === i1){
+                return true
+            }
+
+        }
+
+        return false
+
+    }
+
+    function refreshList(){
+        let ul = document.getElementById("list-frame")
+        ul.innerHTML = ""
+        for (let i=0;i<data.length;i++){
+            let item = document.createElement("li")
+           
+            
+            item.innerHTML = data[i].input1 + " * " + data[i].input2 + " : " + data[i].number
+            item.className = "list-group-item"
+            ul.appendChild(item)
+        }
+
+        let res = "["
+        for(let i = 0;i<data.length;i++){
+            res += "[" + data[i].input1 + "," + data[i].input2 + "," + data[i].number + "]"
+            if(i!==data.length-1){
+                res += ","
+            }
+
+        }
+        res += "]"
+
+        console.log(res)
+
+        document.getElementById("data").value = res
+        
+    }
+</script>
+
+<div style="text-align: center;">
+    
+        <input style="width: 50px;display: inline-block;" class="form-control mr-sm-2" type="number" id="i1">
+        <span style="font-size: 18pt;"> * </span>
+        <input style="width: 50px;display: inline-block;" class="form-control mr-sm-2" type="number" id="i2" >
+    
+</div>
+<div style="text-align: center;">
+    <input style="width: 120px;display: inline-block;" class="form-control mr-sm-2" type="number" id="nbr" placeholder="تعداد" >
+</div>
+<div style="text-align: center;">    
+    <button class="btn btn-outline-success" style="width: 120px;" onclick="btnadd()">اضافه کن</button>
+</div>
+
+
+<div style="text-align: center;padding-left: 20px;padding-right: 20px;margin-bottom: 50px;">    
+    <ul class="list-group" id="list-frame"></ul>
+</div>
+
+<form  action="{% url 'main:calcFrame' %}" method="post" id="form-frame">
+    {% csrf_token %}
+    <input style="display: none;" type="text" name="data" id="data" >
+</form>
+
+<button type="submit" form="form-frame" class="btn btn-primary btn-lg fixed-bottom" style="display: block;width: 100%;">محاسبه کن</button>
+
+{% endblock %}

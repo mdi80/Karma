@@ -1,0 +1,28 @@
+{% extends "karma/layout.html" %}
+
+{% block body %}
+
+    <ul class="list-group">
+        <li style="display: block;" class="list-group-item">سایز<span style="float: left;">تعداد</span></li>
+
+        {% for size,num in sizes.items %}
+            <li style="display: block;" class="list-group-item">
+                {{ size }} <span style="float: left;">{{ num }}</span>
+            </li>
+        {% empty %}
+
+        {% endfor %}
+    </ul>
+    {% if stands %}
+    <h4 style="padding: 10px;">استندهای وارد شده</h4>
+    <ul class="list-group">
+        {% for stand,num in stands %}
+            <li style="display: block;" class="list-group-item">
+                {{ stand }} <span style="float: left;">{{ num }}</span>
+            </li>
+        {% empty %}
+
+        {% endfor %}
+    </ul>   
+    {% endif %}
+{% endblock %}

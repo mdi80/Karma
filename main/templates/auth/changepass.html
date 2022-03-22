@@ -1,0 +1,33 @@
+{% extends "karma/layout.html" %}
+{% block body %}
+
+<div style="padding: 10px;">
+    <h2>تغییر رمز</h2>
+    
+    <form class="was-validated" action="{% url 'main:passchange' %}" method="post">
+        {% csrf_token %}
+        {% if wrong %}
+        <span style="color: red;">رمز عبور اشتباه است!</span>
+        {% elif wrongreap %}
+        <span style="color: red;">رمز جدید با تکرار آن یکی نیست!</span>
+        {% endif %}
+        <div class="mb-3 mt-3">
+            <label for="pass" class="form-label">رمز عبور:</label>
+            <input type="password" class="form-control" id="pass" placeholder="پسورد را وارد کنید" name="pass" required>
+            <div class="invalid-feedback">این فیلد نباید خالی باشد</div>
+        </div>
+        <div class="mb-3">
+            <label for="newpass" class="form-label">رمز جدید:</label>
+            <input type="password" class="form-control" id="newpass" placeholder="رمز جدید را وارد کنید" name="newpass" required>
+            <div class="invalid-feedback">این فیلد نباید خالی باشد</div>
+        </div>
+        <div class="mb-3">
+            <label for="newpassr" class="form-label">تکرار رمز جدید :</label>
+            <input type="password" class="form-control" id="newpassr" placeholder="رمز جدید را وارد کنید" name="newpassr" required>
+            <div class="invalid-feedback">این فیلد نباید خالی باشد</div>
+        </div>
+        <button type="submit" style="float : left" class="btn btn-primary">تموم</button>
+    </form>
+</div>
+
+{% endblock %}

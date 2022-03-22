@@ -1,0 +1,72 @@
+{% extends "karma/layout.html" %}
+{% block body %}
+
+
+<h3 style="margin: 10px;">سفارشات انجام شده اخیر</h3>
+
+<h3 style="margin: 10px;">سفارشات جاری</h3>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col"  style="font-size: 9pt;" >عنوان</th>
+            <th scope="col" style="font-size: 9pt;" >قیمت</th>
+            <th scope="col"  style="font-size: 9pt;" >تاریخ ثبت سفارش</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in neworder %}
+        <tr>
+            
+            <td>order.title</td>
+            <td>order.price</td>
+            <td>order.date</td>
+        </tr>
+        
+        {% endfor %}
+    </tbody>
+  </table>
+
+<h3 style="margin: 10px;">مالی</h3>
+
+<ul class="list-group">
+    <li style="display: block;" class="list-group-item">ماه جاری<span style="float: left;">{{ mali.cur }}</span></li>
+
+    {% for sal,date in mali.his %}
+        <li style="display: block;" class="list-group-item">
+            {{ sal }} <span style="float: left;">{{ date }}</span>
+        </li>
+    {% endfor %}
+</ul>
+
+<h3 style="margin: 10px;">سفارشات</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col"  style="font-size: 9pt;" >عنوان</th>
+            <th scope="col"  style="font-size: 9pt;" >دستمزد کل</th>
+            <th scope="col" style="font-size: 9pt;" >دستمزد دریافتی</th>
+            <th scope="col" style="font-size: 9pt;" >درصد حضور</th>
+            <th scope="col" style="font-size: 9pt;" >تاریخ انجام</th>
+            <th scope="col"  style="font-size: 9pt;" >تعداد زمان انجام سفارش</th>
+            <th scope="col"  style="font-size: 9pt;" >وضیعت</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in hisorder %}
+        <tr>        
+            <td>{{order.name}}</td>
+            <td>{{order.allfee}}</td>
+            <td>{{order.fee}}</td>
+            <td>{{order.percent}}</td>
+            <td>{{order.date}}</td>
+            <td>{{order.nod}}</td>
+            <td>{{order.status}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

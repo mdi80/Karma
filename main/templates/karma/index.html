@@ -1,0 +1,18 @@
+{% extends "karma/layout.html" %}
+{% block body %}
+
+
+<div class="container-fluid">
+    <a style="display: block;margin: 10px;" href="{% url 'main:stand' %}"
+    type="button" class="btn btn-outline-primary btn-lg">استند</a>
+    <a type="button" class="btn btn-outline-secondary btn-lg" href="{% url 'main:frame' %}"
+    style="display: block;margin: 10px;">قاب</a>
+    <a type="button" class="btn btn-outline-danger btn-lg" href="{% url 'main:orders' %}"
+    style="display: block;margin: 10px;">سفارشات</a>
+    <a type="button" class="btn btn-outline-danger btn-lg" href="{% url 'main:profile' %}"
+    style="display: block;margin: 10px;">حسابداری</a>
+
+
+</div>
+
+ {% endblock %}
